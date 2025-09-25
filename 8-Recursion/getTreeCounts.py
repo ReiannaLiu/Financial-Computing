@@ -17,6 +17,6 @@ def testGetTreeCounts():
               Tree(2),
               Tree(1),
               Tree(4, Tree(0)))
-    assert(getTreeCounts(t1) = [1, 1, 1, 0, 2, 0])
+    assert(getTreeCounts(t1) == [1, 1, 1, 0, 2, 0])
 
 testGetTreeCounts()
