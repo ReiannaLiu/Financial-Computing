@@ -251,10 +251,10 @@ class Tree:
 class BinaryTree:
     def __init__(self, value, left=None, right=None):
         self.value = value
-        self.left = left
-        self.right = right
+        self._left = left
+        self._right = right
 
-    def convertToTree(self):
+    def _convertToTree(self):
         if self.isLeaf():
             return Tree(self.getValue())
         else:
@@ -262,20 +262,20 @@ class BinaryTree:
             rightTree = self.getRight()
             children = []
             if leftTree is not None:
-                children.append(leftTree.convertToTree())
+                children.append(leftTree._convertToTree())
             if rightTree is not None:
-                children.append(rightTree.convertToTree())
+                children.append(rightTree._convertToTree())
             return Tree(self.getValue(), *children)
 
     def __str__(self):
-        return str(self.convertToTree())
+        return str(self._convertToTree())
 
     def __repr__(self):
         if self.isLeaf():
-            return f'Tree({self.value}, {self.left}, {self.right})'
+            return f'Tree({self.value}, {self._left}, {self._right})'
         else:
-            leftRepr = repr(self.left)
-            rightRepr = repr(self.right)
+            leftRepr = repr(self._left)
+            rightRepr = repr(self._right)
             return f'Tree({self.value}, {leftRepr}, {rightRepr})'
 
     def __eq__(self, other):
@@ -283,67 +283,77 @@ class BinaryTree:
             return False
         return (
             (self.getValue() == other.getValue())
-            and (self.left == other.left)
-            and (self.right == other.right)
+            and (self._left == other._left)
+            and (self._right == other._right)
         )
-    
-    def size(self):
-        if self.getLeft() == None:
-            leftSize = 0
-        else:
-            leftSize = self.getLeft().size()
-        if self.getRight() == None:
-            rightSize = 0
-        else:
-            rightSize = self.getRight().size()
-        return leftSize + rightSize + 1
 
     def isLeaf(self):
-        return self.left is None and self.right is None
+        return self._left is None and self._right is None
 
     def getValue(self):
         return self.value
 
     def getLeft(self):
-        return self.left
+        return self._left
 
     def getRight(self):
-        return self.right
+        return self._right
 
     def getChildren(self):
-        return (self.left, self.right)
-    
+        return (self._left, self._right)
+
+    def getSize(self):
+        if self.isLeaf():
+            return 1
+        else:
+            leftSize = 0 if self.getLeft() is None else self.getLeft().getSize()
+            rightSize = 0 if self.getRight() is None else self.getRight().getSize()
+            return leftSize + rightSize + 1
+
+
 class BST(BinaryTree):
     def __init__(self, value=None):
         if value is None:
             self.hasNode = False
             super().__init__(None)
-            self.size = 1
-        else:
-            self.hasNode = True
-            super().__init__(value)
             self.size = 0
+        else:
+            self._initFirstNode(value)
+
+    def _initFirstNode(self, value):
+        self.hasNode = True
+        super().__init__(value)
+        self.size = 1
 
     def getSize(self):
         return self.size
 
     def insert(self, value):
+        # TODO: Perform rotations to maintain balance
+        if not self.hasNode:
+            self._initFirstNode(value)
+            return
+
         self.size += 1
-        if self.hasNode == False:
-            self.hasNode = True
-            self.value = value
-        elif value > self.getValue():
+        if value > self.getValue():
             rightTree = self.getRight()
-            if rightTree == None:
-                self.right = BST(value)
+            if rightTree is None:
+                self._right = BST(value)
             else:
                 rightTree.insert(value)
         else:
             leftTree = self.getLeft()
-            if leftTree == None:
-                self.left = BST(value)
+            if leftTree is None:
+                self._left = BST(value)
             else:
                 leftTree.insert(value)
 
+    @staticmethod
+    def fromList(L):
+        t = BST()
+        for v in L:
+            t.insert(v)
+        return t
 
-__all__ = ['PQ', 'Tree', 'BinaryTree']
+
+__all__ = ['PQ', 'Tree', 'BinaryTree', 'BST']
